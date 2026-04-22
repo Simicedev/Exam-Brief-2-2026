@@ -130,7 +130,15 @@
 }
 
 body {
+  background-color: var(--bg);
   margin: 0;
+  color: white;
+}
+
+[data-sonner-toast] [data-content] {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
 }
 
 h1,
