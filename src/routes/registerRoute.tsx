@@ -5,5 +5,10 @@ export const Route = createFileRoute('/registerRoute')({
 })
 
 function RouteComponent() {
-  return <div>Hello "/registerRoute"!</div>
+  return (
+    <div>
+      <h1>Register</h1>
+      <p>This is the register page.</p>
+    </div>
+  )
 }

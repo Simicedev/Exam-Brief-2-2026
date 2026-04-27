@@ -9,7 +9,7 @@ export const Route = createFileRoute('/homeRoute')({
 function RouteComponent() {
   return (
     <div>
-      <Button onClick={() => toast.success("Toast works!", { description: "This is a toast message" })}>Show toast!</Button>
+      <h1 className="text-2xl text-black italic">Welcome to VayCay!</h1>
       
     </div>
   )
