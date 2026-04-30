@@ -7,7 +7,7 @@ import {
 	NavigationMenuItem,
 	NavigationMenuList,
 } from "../ui/navigation-menu"
-import { clearStoredSession, getStoredSession } from "../../lib/auth"
+import { addAuthChangedListener, clearStoredSession, getStoredSession } from "../../lib/auth"
 import { cn } from "../../lib/utils"
 
 type AppRoute =
@@ -62,10 +62,12 @@ export default function NavBar() {
 		}
 
 		syncSession()
+		const removeAuthChangedListener = addAuthChangedListener(syncSession)
 		window.addEventListener("storage", syncSession)
 		window.addEventListener("focus", syncSession)
 
 		return () => {
+			removeAuthChangedListener()
 			window.removeEventListener("storage", syncSession)
 			window.removeEventListener("focus", syncSession)
 		}
@@ -108,7 +110,6 @@ export default function NavBar() {
 
 	const handleSignOut = async () => {
 		clearStoredSession()
-		setSession(null)
 		setAccountMenuOpen(false)
 		await navigate({ to: "/loginRoute" })
 	}
