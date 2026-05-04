@@ -14,10 +14,10 @@ import type { LoginFormData } from '../zodSchema/loginForm'
 const REDIRECT_ROUTE = '/homeRoute'
 
 export const Route = createFileRoute('/loginRoute')({
-  component: LoginRoutePage,
+  component: LoginPageRoute,
 })
 
-function LoginRoutePage() {
+function LoginPageRoute() {
   const navigate = useNavigate()
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
@@ -88,7 +88,7 @@ function LoginRoutePage() {
                 Log in and keep planning your next stay.
               </h1>
               <p className="max-w-xl text-base leading-7 text-white/75">
-                Use the same Holidaze account you registered with to browse venues, manage trips,
+                Use the same VayCay account you registered with to browse venues, manage trips,
                 and access host tools if you are a venue manager.
               </p>
             </div>
@@ -117,7 +117,7 @@ function LoginRoutePage() {
             </p>
             <h2 className="text-3xl font-semibold tracking-tight text-foreground">Welcome back</h2>
             <p className="text-sm leading-6 text-muted-foreground">
-              Log in with the account you use for Holidaze bookings and venue management.
+              Log in with the account you use for VayCay bookings and venue management.
             </p>
           </div>
 

@@ -14,10 +14,10 @@ import type { RegisterFormData } from '../zodSchema/registerForm'
 const REDIRECT_ROUTE = '/homeRoute'
 
 export const Route = createFileRoute('/registerRoute')({
-  component: RegisterRoutePage,
+  component: RegisterPageRoute,
 })
 
-function RegisterRoutePage() {
+function RegisterPageRoute() {
 	const navigate = useNavigate()
 	const [name, setName] = React.useState('')
 	const [email, setEmail] = React.useState('')
