@@ -3,12 +3,13 @@ import { useQuery } from "@tanstack/react-query"
 import { useNavigate, useRouterState } from "@tanstack/react-router"
 import { CalendarDays, Search, Users } from "lucide-react"
 
-import { apiClient } from "../../api/apiClient"
+import { ApiError, apiClient } from "../../api/apiClient"
 
 const DEFAULT_PAGE = 1
 const DEFAULT_LIMIT = 12
 const SUGGESTION_LIMIT = 5
-const SEARCH_QUERY_PARAM = "q"
+const SUGGESTION_SOURCE_LIMIT = 100
+const SEARCH_QUERY_PARAM = "query"
 
 function toPositiveNumber(value: string | null, fallback: number) {
 	const parsedValue = Number(value)
@@ -20,16 +21,32 @@ function toPositiveNumber(value: string | null, fallback: number) {
 	return parsedValue
 }
 
-function buildSearchParams(query: string, page: number, limit: number) {
-	return {
-		page,
-		limit,
-		...(query ? { [SEARCH_QUERY_PARAM]: query } : {}),
-	}
-}
-
 function sanitizeLocationInput(value: string) {
 	return value.replace(/\d+/g, "")
+}
+
+const normalizeText = (value: string) => value.trim().toLowerCase()
+
+const startsWithQuery = (value: string, queryValue: string) =>
+	normalizeText(value).startsWith(normalizeText(queryValue))
+
+async function fetchSuggestionVenues() {
+	const venues = [] as Awaited<ReturnType<typeof apiClient.venues.list>>["data"]
+	let page = DEFAULT_PAGE
+	let isLastPage = false
+
+	while (!isLastPage) {
+		const response = await apiClient.venues.list({
+			page,
+			limit: SUGGESTION_SOURCE_LIMIT,
+		})
+
+		venues.push(...response.data)
+		isLastPage = response.meta.isLastPage
+		page += 1
+	}
+
+	return venues
 }
 
 export default function SearchForVenue() {
@@ -50,13 +67,13 @@ export default function SearchForVenue() {
 	const selectedDate = currentParams.get("date") ?? ""
 	const returnDate = currentParams.get("returnDate") ?? ""
 	const guestCount = currentParams.get("guests") ?? ""
-	const page = toPositiveNumber(currentParams.get("page"), DEFAULT_PAGE)
 	const limit = toPositiveNumber(currentParams.get("limit"), DEFAULT_LIMIT)
 	const [draftQuery, setDraftQuery] = React.useState(query)
 	const [draftDate, setDraftDate] = React.useState(selectedDate)
 	const [draftReturnDate, setDraftReturnDate] = React.useState(returnDate)
 	const [draftGuests, setDraftGuests] = React.useState(guestCount)
 	const [showSuggestions, setShowSuggestions] = React.useState(false)
+	const [isSearchOpen, setIsSearchOpen] = React.useState(false)
 
 	React.useEffect(() => {
 		setDraftQuery(query)
@@ -93,22 +110,19 @@ export default function SearchForVenue() {
 		}
 	}, [showSuggestions])
 
-	useQuery({
-		queryKey: ["venues", "toolbar", query, page, limit],
-		queryFn: () => apiClient.venues.list(buildSearchParams(query, page, limit)),
-		staleTime: 30_000,
-	})
+	const suggestionSourceQuery = useQuery({
+		queryKey: ["venues", "toolbar-suggestions-source"],
+		queryFn: fetchSuggestionVenues,
+		enabled: showSuggestions && draftQuery.trim().length >= 2,
+		staleTime: 5 * 60_000,
+		refetchOnWindowFocus: false,
+		retry: (failureCount, queryError) => {
+			if (queryError instanceof ApiError && queryError.status === 429) {
+				return false
+			}
 
-	const suggestionQuery = useQuery({
-		queryKey: ["venues", "toolbar-suggestions", draftQuery.trim()],
-		queryFn: () =>
-			apiClient.venues.list({
-				[SEARCH_QUERY_PARAM]: draftQuery.trim(),
-				page: DEFAULT_PAGE,
-				limit: SUGGESTION_LIMIT,
-			}),
-		enabled: draftQuery.trim().length >= 2,
-		staleTime: 30_000,
+			return failureCount < 2
+		},
 	})
 
 	const applyFilters = React.useCallback(
@@ -160,6 +174,7 @@ export default function SearchForVenue() {
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
 		setShowSuggestions(false)
+		setIsSearchOpen(false)
 
 		await applyFilters({
 			query: draftQuery.trim(),
@@ -180,11 +195,50 @@ export default function SearchForVenue() {
 		input?.click()
 	}
 
-	const suggestions = (suggestionQuery.data?.data ?? []).map((venue) => ({
-		id: venue.id,
-		label: venue.location.city || venue.location.country || venue.name,
-		subLabel: venue.name,
-	}))
+	const suggestions = React.useMemo(() => {
+		const queryValue = draftQuery.trim()
+
+		if (queryValue.length < 2) {
+			return []
+		}
+
+		const venues = suggestionSourceQuery.data ?? []
+		const dedupe = new Set<string>()
+
+		const results = venues
+			.map((venue) => {
+				const city = venue.location.city?.trim() ?? ""
+				const country = venue.location.country?.trim() ?? ""
+				const name = venue.name?.trim() ?? ""
+
+				const matchingLabel =
+					(startsWithQuery(city, queryValue) && city) ||
+					(startsWithQuery(country, queryValue) && country) ||
+					(startsWithQuery(name, queryValue) && name) ||
+					""
+
+				if (!matchingLabel) {
+					return null
+				}
+
+				const dedupeKey = `${matchingLabel.toLowerCase()}::${name.toLowerCase()}`
+				if (dedupe.has(dedupeKey)) {
+					return null
+				}
+
+				dedupe.add(dedupeKey)
+
+				return {
+					id: venue.id,
+					label: matchingLabel,
+					subLabel: name,
+				}
+			})
+			.filter((item): item is { id: string; label: string; subLabel: string } => item !== null)
+			.slice(0, SUGGESTION_LIMIT)
+
+		return results
+	}, [draftQuery, suggestionSourceQuery.data])
 
 	const handleLocationChange = (value: string) => {
 		setDraftQuery(sanitizeLocationInput(value))
@@ -206,8 +260,16 @@ export default function SearchForVenue() {
 	return (
 		<section className="sticky top-16 z-40 border-b border-border bg-background/95 backdrop-blur-lg">
 			<div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:px-8">
-				<div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-					<form className="grid flex-1 gap-2 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.8fr)_auto]" onSubmit={handleSubmit}>
+				<div className="flex items-center justify-between lg:flex-row lg:gap-3">
+					<button
+						type="button"
+						onClick={() => setIsSearchOpen(!isSearchOpen)}
+						className="lg:hidden inline-flex items-center justify-center rounded-2xl border border-border bg-white p-2 shadow-sm transition hover:bg-muted"
+						aria-label="Toggle search form"
+					>
+						<Search className="size-5 text-foreground" />
+					</button>
+					<form className={`${isSearchOpen ? "grid" : "hidden lg:grid"} flex-1 gap-2 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.8fr)_auto]`} onSubmit={handleSubmit}>
 						<div className="relative min-w-0">
 							<label className="flex min-w-0 items-center gap-2 rounded-2xl border border-border bg-white px-3 py-2 shadow-sm">
 								<Search className="size-4 shrink-0 text-muted-foreground" />
@@ -234,8 +296,8 @@ export default function SearchForVenue() {
 									ref={suggestionBoxRef}
 									className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 rounded-2xl border border-border bg-white p-2 shadow-xl"
 								>
-									{suggestionQuery.isLoading ? (
-										<p className="px-3 py-2 text-sm text-muted-foreground">Looking up destinations...</p>
+									{suggestionSourceQuery.isLoading ? (
+										<p className="px-3 py-2 text-sm  text-black">Looking up destinations...</p>
 									) : suggestions.length > 0 ? (
 										<div className="space-y-1">
 											{suggestions.map((suggestion) => (
