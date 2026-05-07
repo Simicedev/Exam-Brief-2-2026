@@ -99,6 +99,9 @@ export const apiClient = {
 			return request<RegisterResponse>("/auth/register", {
 				method: "POST",
 				body: payload,
+				searchParams: {
+					_holidaze: true,
+				},
 			});
 		},
 
