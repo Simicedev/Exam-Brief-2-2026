@@ -225,57 +225,9 @@ function ProfileRoutePage() {
         </div>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_1fr] space-y-8">
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-black">Your venues</h2>
-
-          {venues.length === 0 ? (
-            <p className="text-slate-600">No venues yet.</p>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {venues.map((venue) => (
-                <Card key={venue.id} className="overflow-hidden">
-                  {venue.media[0]?.url ? (
-                    <img
-                      src={venue.media[0].url}
-                      alt={venue.media[0].alt || venue.name}
-                      className="h-40 w-full object-cover"
-                    />
-                  ) : (
-                    <div className="h-40 w-full bg-slate-100" />
-                  )}
-                  <CardHeader>
-                    <CardTitle className="line-clamp-1 text-black">{venue.name}</CardTitle>
-                    <CardDescription className="line-clamp-2 text-slate-600">
-                      {venue.description || "No description"}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-slate-600">${venue.price} per night</p>
-                  </CardContent>
-                  <CardFooter className="flex flex-wrap gap-2">
-                    <Link to="/specificVenueRoute" search={{ id: venue.id }}>
-                      <Button size="sm" variant="outline">
-                        View
-                      </Button>
-                    </Link>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => void handleDeleteVenue(venue.id)}
-                      disabled={deleteVenueMutation.isPending}
-                    >
-                      Delete
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <aside className="space-y-6">
-          <div>
+      <div className="grid gap-8 lg:grid-cols-2">
+        <div className="space-y-6 lg:order-1">
+          <div className="space-y-4">
             <h2 className="mb-3 text-xl font-semibold text-black">Recent bookings</h2>
             {bookings.length === 0 ? (
               <p className="text-slate-600">No bookings yet.</p>
@@ -299,7 +251,57 @@ function ProfileRoutePage() {
               </ul>
             )}
           </div>
-        </aside>
+        </div>
+
+        {profile.venueManager ? (
+          <div className="space-y-4 lg:order-2">
+            <h2 className="text-xl font-semibold text-black">Your venues</h2>
+
+            {venues.length === 0 ? (
+              <p className="text-slate-600">No venues yet.</p>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {venues.map((venue) => (
+                  <Card key={venue.id} className="overflow-hidden">
+                    {venue.media[0]?.url ? (
+                      <img
+                        src={venue.media[0].url}
+                        alt={venue.media[0].alt || venue.name}
+                        className="h-40 w-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-40 w-full bg-slate-100" />
+                    )}
+                    <CardHeader>
+                      <CardTitle className="line-clamp-1 text-black">{venue.name}</CardTitle>
+                      <CardDescription className="line-clamp-2 text-slate-600">
+                        {venue.description || "No description"}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-slate-600">${venue.price} per night</p>
+                    </CardContent>
+                    <CardFooter className="flex flex-wrap gap-2">
+                      <Link to="/specificVenueRoute" search={{ id: venue.id }}>
+                        <Button size="sm" variant="outline">
+                          View
+                        </Button>
+                      </Link>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => void handleDeleteVenue(venue.id)}
+                        disabled={deleteVenueMutation.isPending}
+                      >
+                        Delete
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : null}
       </div>
 
       <EditProfileDialog
