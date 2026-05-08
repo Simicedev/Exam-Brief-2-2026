@@ -107,6 +107,11 @@ function RouteComponent() {
   const search = Route.useSearch();
   const isAreaView = Boolean(search.city || search.country);
   const currentPage = search.page ?? 1;
+  const loadingLabel = search.city && search.country
+    ? `Loading venues in ${search.city}, ${search.country}...`
+    : search.country
+      ? `Loading venues in ${search.country}...`
+      : "Loading venues...";
   const hasActiveFilters = Boolean(
     search.city || search.country || search.query || search.date || search.returnDate || search.guests,
   );
@@ -175,6 +180,10 @@ function RouteComponent() {
   const filteredVenues = React.useMemo(() => {
     const venues = data?.venues ?? [];
     const query = search.query?.toLowerCase() ?? "";
+    const queryTokens = query
+      .split(/[^a-z0-9]+/i)
+      .map((token) => token.trim())
+      .filter(Boolean);
     const selectedFrom = search.date ? new Date(search.date) : undefined;
     const selectedTo = search.returnDate ? new Date(search.returnDate) : undefined;
 
@@ -186,12 +195,11 @@ function RouteComponent() {
       const matchesCountry = search.country
         ? venue.location.country?.toLowerCase() === search.country.toLowerCase()
         : true;
-      const matchesQuery = query
-        ? venue.name.toLowerCase().includes(query) ||
-          venue.location.city?.toLowerCase().includes(query) ||
-          venue.location.country?.toLowerCase().includes(query)
+      const searchableText = `${venue.name} ${venue.location.city ?? ""} ${venue.location.country ?? ""}`.toLowerCase();
+      const matchesQuery = queryTokens.length > 0
+        ? queryTokens.every((token) => searchableText.includes(token))
         : true;
-      const matchesGuests = search.guests ? venue.maxGuests >= search.guests : true;
+      const matchesGuests = search.guests ? venue.maxGuests === search.guests : true;
 
       const matchesAvailability =
         selectedFrom && selectedTo ? !hasDateOverlap(venue, selectedFrom, selectedTo) : true;
@@ -202,7 +210,7 @@ function RouteComponent() {
 
   const totalPages = hasActiveFilters
     ? Math.max(1, Math.ceil(filteredVenues.length / DISPLAY_PAGE_SIZE))
-    : data?.totalPages ?? 1;
+    : data?.totalPages ?? currentPage;
 
   const safeCurrentPage = Math.min(currentPage, totalPages);
   const hasPrevPage = safeCurrentPage > 1;
@@ -218,10 +226,14 @@ function RouteComponent() {
   }, [filteredVenues, hasActiveFilters, safeCurrentPage]);
 
   React.useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+
     if (currentPage > totalPages) {
       setPage(totalPages);
     }
-  }, [currentPage, totalPages, setPage]);
+  }, [currentPage, totalPages, isLoading, setPage]);
 
   React.useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -287,6 +299,13 @@ function RouteComponent() {
         </div>
        
       </div>
+
+      {isLoading ? (
+        <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3">
+          <p className="text-sm font-medium text-slate-800">{loadingLabel}</p>
+          <p className="text-xs text-slate-600">Please wait while we fetch available venues.</p>
+        </div>
+      ) : null}
 
       <SkeletonCard isLoading={isLoading} />
 

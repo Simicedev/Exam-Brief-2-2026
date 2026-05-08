@@ -187,8 +187,8 @@ export const apiClient = {
 			return request<ProfileListResponse>("/holidaze/profiles", { searchParams });
 		},
 
-		get(name: string, searchParams?: Record<string, QueryValue>) {
-			return request<ProfileResponse>(`/holidaze/profiles/${name}`, { searchParams });
+		get(name: string, searchParams?: Record<string, QueryValue>, token?: string) {
+			return request<ProfileResponse>(`/holidaze/profiles/${name}`, { searchParams, token });
 		},
 
 		update(name: string, token: string, payload: UpdateProfileRequest) {
