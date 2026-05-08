@@ -27,6 +27,9 @@ function sanitizeLocationInput(value: string) {
 
 const normalizeText = (value: string) => value.trim().toLowerCase()
 
+const hasDisplayImage = (media: Array<{ url?: string }> | undefined) =>
+	Boolean(media?.[0]?.url?.trim())
+
 const startsWithQuery = (value: string, queryValue: string) =>
 	normalizeText(value).startsWith(normalizeText(queryValue))
 
@@ -210,18 +213,23 @@ export default function SearchForVenue() {
 				const city = venue.location.city?.trim() ?? ""
 				const country = venue.location.country?.trim() ?? ""
 				const name = venue.name?.trim() ?? ""
+				const locationLabel = [city, country].filter(Boolean).join(", ")
 
-				const matchingLabel =
+				if (!name || !locationLabel || !hasDisplayImage(venue.media)) {
+					return null
+				}
+
+				const hasMatch =
 					(startsWithQuery(city, queryValue) && city) ||
 					(startsWithQuery(country, queryValue) && country) ||
 					(startsWithQuery(name, queryValue) && name) ||
 					""
 
-				if (!matchingLabel) {
+				if (!hasMatch) {
 					return null
 				}
 
-				const dedupeKey = `${matchingLabel.toLowerCase()}::${name.toLowerCase()}`
+				const dedupeKey = `${name.toLowerCase()}::${locationLabel.toLowerCase()}`
 				if (dedupe.has(dedupeKey)) {
 					return null
 				}
@@ -230,11 +238,12 @@ export default function SearchForVenue() {
 
 				return {
 					id: venue.id,
-					label: matchingLabel,
+					label: locationLabel,
 					subLabel: name,
+					queryValue: `${name}, ${locationLabel}`,
 				}
 			})
-			.filter((item): item is { id: string; label: string; subLabel: string } => item !== null)
+			.filter((item): item is { id: string; label: string; subLabel: string; queryValue: string } => item !== null)
 			.slice(0, SUGGESTION_LIMIT)
 
 		return results
@@ -304,11 +313,11 @@ export default function SearchForVenue() {
 												<button
 													key={suggestion.id}
 													type="button"
-													onClick={() => handleSuggestionSelect(suggestion.label)}
+													onClick={() => handleSuggestionSelect(suggestion.queryValue)}
 													className="block w-full rounded-xl px-3 py-2 text-left transition hover:bg-muted"
 												>
-													<span className="block text-sm font-medium text-foreground">{suggestion.label}</span>
-													<span className="block text-xs text-muted-foreground">{suggestion.subLabel}</span>
+													<span className="block text-sm font-medium text-foreground">{suggestion.subLabel}</span>
+													<span className="block text-xs text-muted-foreground">{suggestion.label}</span>
 												</button>
 											))}
 										</div>
