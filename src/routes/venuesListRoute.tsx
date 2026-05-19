@@ -55,6 +55,8 @@ const fetchVenuesPage = async (page: number) => {
     _bookings: true,
     page,
     limit: API_PAGE_SIZE,
+    sort: "created",
+    sortOrder: "desc",
   });
 };
 
@@ -187,8 +189,8 @@ function RouteComponent() {
     const selectedFrom = search.date ? new Date(search.date) : undefined;
     const selectedTo = search.returnDate ? new Date(search.returnDate) : undefined;
 
-    return venues.filter((venue: Venue) => {
-      const hasImage = Boolean(venue.media[0]?.url?.trim());
+    const matchingVenues = venues.filter((venue: Venue) => {
+      const hasImage = Boolean(venue.media?.[0]?.url?.trim());
       const matchesCity = search.city
         ? venue.location.city?.toLowerCase() === search.city.toLowerCase()
         : true;
@@ -205,6 +207,13 @@ function RouteComponent() {
         selectedFrom && selectedTo ? !hasDateOverlap(venue, selectedFrom, selectedTo) : true;
 
       return hasImage && matchesCity && matchesCountry && matchesQuery && matchesGuests && matchesAvailability;
+    });
+
+    return matchingVenues.sort((a, b) => {
+      const aCreated = Date.parse(a.created);
+      const bCreated = Date.parse(b.created);
+
+      return (Number.isNaN(bCreated) ? 0 : bCreated) - (Number.isNaN(aCreated) ? 0 : aCreated);
     });
   }, [data, search.city, search.country, search.query, search.date, search.returnDate, search.guests]);
 
@@ -321,8 +330,8 @@ function RouteComponent() {
             return (
               <Card key={venue.id} className="overflow-hidden">
                 <img
-                  src={venue.media[0]?.url || ""}
-                  alt={venue.media[0]?.alt || venue.name}
+                  src={venue.media?.[0]?.url || ""}
+                  alt={venue.media?.[0]?.alt || venue.name}
                   className="h-48 w-full object-cover"
                 />
                 <CardHeader>
