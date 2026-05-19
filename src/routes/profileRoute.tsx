@@ -490,7 +490,7 @@ function ProfileRoutePage() {
             ) : (
               <div className="grid gap-5 p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-2">
                 {visibleVenues.map((venue) => {
-                  const previewImage = venue.media[0]?.url?.trim();
+                  const previewImage = venue.media?.[0]?.url?.trim() ?? "";
                   const clampedRating = Math.max(0, Math.min(5, venue.rating ?? 0));
                   const roundedRating = Math.round(clampedRating);
                   const locationLabel = [venue.location.city, venue.location.country].filter(Boolean).join(", ");
@@ -501,7 +501,7 @@ function ProfileRoutePage() {
                         {previewImage ? (
                           <img
                             src={previewImage}
-                            alt={venue.media[0].alt || venue.name}
+                            alt={venue.media?.[0]?.alt || venue.name}
                             className="h-full w-full object-cover transition duration-300 hover:scale-[1.03]"
                           />
                         ) : (
@@ -766,7 +766,7 @@ function VenuePreviewDialog({
       return;
     }
 
-    const image = data?.media.find((item) => item.url?.trim())?.url ?? "";
+    const image = data?.media?.find((item) => item.url?.trim())?.url ?? "";
     setActiveImage(image);
   }, [open, data]);
 
@@ -830,9 +830,9 @@ function VenuePreviewDialog({
                         ) : null}
                       </div>
 
-                      {data.media.length > 1 ? (
+                      {(data.media?.length ?? 0) > 1 ? (
                         <div className="absolute inset-x-0 bottom-0 flex gap-2 overflow-x-auto px-4 pb-4 pt-20 sm:px-6">
-                          {data.media.map((item, index) => (
+                          {data.media?.map((item, index) => (
                             <button
                               key={`${item.url}-${index}`}
                               type="button"
@@ -966,7 +966,7 @@ function EditVenueDialog({
     city: '',
     zip: '',
     country: '',
-    lat: undefined,
+    lat: undefined, // temporarily undefined, should be set from venue
     lng: undefined,
   });
 
@@ -990,7 +990,7 @@ function EditVenueDialog({
         city: venue.location?.city || '',
         zip: venue.location?.zip || '',
         country: venue.location?.country || '',
-        lat: venue.location?.lat,
+        lat: venue.location?.lat ?? 0,
         lng: venue.location?.lng,
       });
     }

@@ -53,7 +53,7 @@ const toCalendarLabel = (value: string) => {
 };
 
 const getGalleryImages = (venue: Venue) => {
-  return venue.media.filter((item) => item.url?.trim());
+  return venue.media?.filter((item) => item.url?.trim()) ?? [];
 };
 
 const getTitle = (venue: Venue) => {
@@ -584,7 +584,7 @@ function SpecificVenueRoute() {
               <>
                 <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3">
                   {ownerAvatar ? (
-                    <img src={ownerAvatar} alt={venue.owner.avatar.alt || `${venue.owner.name} avatar`} className="h-14 w-14 rounded-full object-cover" />
+                    <img src={ownerAvatar} alt={venue.owner?.avatar?.alt || `${venue.owner?.name} avatar`} className="h-14 w-14 rounded-full object-cover" />
                   ) : (
                     <div className="grid h-14 w-14 place-items-center rounded-full bg-slate-200 text-sm font-semibold text-slate-600">
                       {venue.owner.name.charAt(0).toUpperCase()}

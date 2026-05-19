@@ -42,7 +42,9 @@ export const CreateVenueSchema = z.object({
   city: z.string().min(1, "City is required."),
   zip: z.string().min(1, "ZIP code is required."),
   country: z.string().min(1, "Country is required."),
-
+  continent: z.string().optional(),
+  lat: z.number().optional(),
+  lng: z.number().optional(),
 });
 
 export type CreateVenueFormData = z.infer<typeof CreateVenueSchema>;

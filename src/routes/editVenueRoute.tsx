@@ -116,6 +116,7 @@ function EditVenueRoute() {
       city: venueData.location?.city || '',
       zip: venueData.location?.zip || '',
       country: venueData.location?.country || '',
+      continent: venueData.location?.continent,
       lat: venueData.location?.lat,
       lng: venueData.location?.lng,
     })

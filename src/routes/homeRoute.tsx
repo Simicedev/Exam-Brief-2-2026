@@ -46,7 +46,7 @@ function toPopularAreas(venues: Venue[]): PopularArea[] {
 
   for (const venue of venues) {
     const country = venue.location.country?.trim();
-    const imageUrl = venue.media[0]?.url?.trim();
+    const imageUrl = venue.media?.[0]?.url?.trim();
 
     // Only keep venues with a valid area name and a display image.
     if (!country || !imageUrl) {
