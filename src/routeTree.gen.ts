@@ -17,6 +17,7 @@ import { Route as LoginRouteRouteImport } from './routes/loginRoute'
 import { Route as HomeRouteRouteImport } from './routes/homeRoute'
 import { Route as EditVenueRouteRouteImport } from './routes/editVenueRoute'
 import { Route as CreateVenueRouteRouteImport } from './routes/createVenueRoute'
+import { Route as IndexRouteImport } from './routes/index'
 
 const VenuesListRouteRoute = VenuesListRouteRouteImport.update({
   id: '/venuesListRoute',
@@ -58,8 +59,14 @@ const CreateVenueRouteRoute = CreateVenueRouteRouteImport.update({
   path: '/createVenueRoute',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
   '/createVenueRoute': typeof CreateVenueRouteRoute
   '/editVenueRoute': typeof EditVenueRouteRoute
   '/homeRoute': typeof HomeRouteRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/venuesListRoute': typeof VenuesListRouteRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/createVenueRoute': typeof CreateVenueRouteRoute
   '/editVenueRoute': typeof EditVenueRouteRoute
   '/homeRoute': typeof HomeRouteRoute
@@ -81,6 +89,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/createVenueRoute': typeof CreateVenueRouteRoute
   '/editVenueRoute': typeof EditVenueRouteRoute
   '/homeRoute': typeof HomeRouteRoute
@@ -93,6 +102,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/createVenueRoute'
     | '/editVenueRoute'
     | '/homeRoute'
@@ -103,6 +113,7 @@ export interface FileRouteTypes {
     | '/venuesListRoute'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/createVenueRoute'
     | '/editVenueRoute'
     | '/homeRoute'
@@ -113,6 +124,7 @@ export interface FileRouteTypes {
     | '/venuesListRoute'
   id:
     | '__root__'
+    | '/'
     | '/createVenueRoute'
     | '/editVenueRoute'
     | '/homeRoute'
@@ -124,6 +136,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   CreateVenueRouteRoute: typeof CreateVenueRouteRoute
   EditVenueRouteRoute: typeof EditVenueRouteRoute
   HomeRouteRoute: typeof HomeRouteRoute
@@ -192,10 +205,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreateVenueRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   CreateVenueRouteRoute: CreateVenueRouteRoute,
   EditVenueRouteRoute: EditVenueRouteRoute,
   HomeRouteRoute: HomeRouteRoute,
