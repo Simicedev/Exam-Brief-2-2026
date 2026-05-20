@@ -2,6 +2,8 @@
 
 Holidaze front-end project built with a modern React + TypeScript stack focused on routing, server-state handling, component consistency, and testability.
 
+Website - https://vaycay.netlify.app/homeRoute
+
 ## Tech Stack
 
 - React
