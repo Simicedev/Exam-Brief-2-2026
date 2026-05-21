@@ -46,7 +46,7 @@ function toPopularAreas(venues: Venue[]): PopularArea[] {
 
   for (const venue of venues) {
     const country = venue.location.country?.trim();
-    const imageUrl = venue.media[0]?.url?.trim();
+    const imageUrl = venue.media?.[0]?.url?.trim();
 
     // Only keep venues with a valid area name and a display image.
     if (!country || !imageUrl) {
@@ -197,6 +197,40 @@ function HomePageRoute() {
             ))}
           </ol>
         )}
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-2">
+        <Card className="border border-emerald-200 bg-emerald-50">
+          <CardHeader>
+            <CardTitle className="text-black">15% Off This Week</CardTitle>
+            <CardDescription className="text-slate-700">
+              Use code <span className="font-semibold text-black">GETAWAY15</span> before it is too late.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm text-slate-700">
+            <p>Plan your next stay today and save on selected destinations.</p>
+            <p>Perfect for weekend trips, family holidays, and last-minute escapes.</p>
+          </CardContent>
+          <CardFooter>
+            <p className="text-xs text-slate-600">Offer shown for design preview only.</p>
+          </CardFooter>
+        </Card>
+
+        <Card className="border border-blue-200 bg-blue-50">
+          <CardHeader>
+            <CardTitle className="text-black">Loyalty Points Rewards</CardTitle>
+            <CardDescription className="text-slate-700">
+              Collect points every time you book and unlock member perks.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm text-slate-700">
+            <p>Earn points on each reservation and use them toward future stays.</p>
+            <p>More bookings means better rewards, upgrades, and exclusive deals.</p>
+          </CardContent>
+          <CardFooter>
+            <p className="text-xs text-slate-600">Visual card only, no functionality attached.</p>
+          </CardFooter>
+        </Card>
       </section>
     </div>
   );
