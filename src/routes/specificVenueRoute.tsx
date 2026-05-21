@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import * as React from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { DayPicker, type Matcher } from "react-day-picker";
 import "react-day-picker/style.css";
 import { CalendarDays } from "lucide-react";
@@ -71,8 +71,6 @@ export const Route = createFileRoute("/specificVenueRoute")({
 
 function SpecificVenueRoute() {
   const search = Route.useSearch();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const venueId = search.id?.trim();
   const [session, setSession] = React.useState(() => getStoredSession());
   const [activeImage, setActiveImage] = React.useState("");
@@ -208,29 +206,6 @@ function SpecificVenueRoute() {
     },
   });
 
-  const deleteVenueMutation = useMutation({
-    mutationFn: async () => {
-      if (!venueId) {
-        throw new Error("Missing venue id.");
-      }
-
-      if (!session?.accessToken) {
-        throw new Error("You must be logged in to delete this venue.");
-      }
-
-      await apiClient.venues.remove(venueId, session.accessToken);
-    },
-    onSuccess: async () => {
-      toast.success("Venue deleted.");
-      await queryClient.invalidateQueries({ queryKey: ["profile", session?.name] });
-      await queryClient.invalidateQueries({ queryKey: ["venues"] });
-      void navigate({ to: "/profileRoute" });
-    },
-    onError: (mutationError) => {
-      const message = mutationError instanceof Error ? mutationError.message : "Failed to delete venue.";
-      toast.error(message);
-    },
-  });
 
   if (!venueId) {
     return (
@@ -330,15 +305,6 @@ function SpecificVenueRoute() {
     await bookingMutation.mutateAsync();
   };
 
-  const handleDeleteVenue = async () => {
-    const confirmed = window.confirm("Delete this venue? This action cannot be undone.");
-    if (!confirmed || deleteVenueMutation.isPending) {
-      return;
-    }
-
-    await deleteVenueMutation.mutateAsync();
-  };
-
   return (
     <section className="relative isolate mx-auto max-w-6xl space-y-6 overflow-hidden p-4 sm:p-6">
       <div className="pointer-events-none absolute -left-28 top-20 -z-10 h-64 w-64 rounded-full" />
@@ -348,21 +314,7 @@ function SpecificVenueRoute() {
         <div>
           <h1 className="mt-1 text-2xl font-semibold text-black sm:text-3xl">{getTitle(venue)}</h1>
         </div>
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          {isOwner ? (
-            <>
-              <Link to="/editVenueRoute" search={{ id: venue.id }}>
-                <Button className="cursor-pointer border-slate-300 bg-white/85 backdrop-blur" variant="outline">Edit venue</Button>
-              </Link>
-              <Button className="cursor-pointer" variant="destructive" onClick={handleDeleteVenue} disabled={deleteVenueMutation.isPending}>
-                {deleteVenueMutation.isPending ? "Deleting..." : "Delete venue"}
-              </Button>
-            </>
-          ) : null}
-          <Link to="/venuesListRoute">
-            <Button className="cursor-pointer border-slate-300 bg-white/85 backdrop-blur" variant="outline">Back to venues</Button>
-          </Link>
-        </div>
+       
       </div>
 
       <article className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
@@ -430,7 +382,7 @@ function SpecificVenueRoute() {
 
             {isOwner ? (
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
-                Owner mode is active. Use the edit and delete controls above to manage this listing.
+                Owner mode is active. Go to profile page to edit your bookings or create new ones. {" "}
               </div>
             ) : !session?.accessToken ? (
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
