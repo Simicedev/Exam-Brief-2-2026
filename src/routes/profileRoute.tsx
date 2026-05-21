@@ -160,8 +160,8 @@ function ProfileRoutePage() {
           city: venueData.city,
           zip: venueData.zip,
           country: venueData.country,
-          lat: venueData.lat || 0,
-          lng: venueData.lng || 0,
+          lat: venueData.lat ?? 0,
+          lng: venueData.lng ?? 0,
         },
       });
     },
@@ -990,8 +990,8 @@ function EditVenueDialog({
         city: venue.location?.city || '',
         zip: venue.location?.zip || '',
         country: venue.location?.country || '',
-        lat: venue.location?.lat ?? 0,
-        lng: venue.location?.lng,
+        lat: typeof venue.location?.lat === 'number' ? venue.location.lat : undefined,
+        lng: typeof venue.location?.lng === 'number' ? venue.location.lng : undefined,
       });
     }
   }, [venue]);
