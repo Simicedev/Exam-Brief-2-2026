@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import * as React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DayPicker, type Matcher } from "react-day-picker";
 import "react-day-picker/style.css";
 import { CalendarDays } from "lucide-react";
@@ -71,6 +71,7 @@ export const Route = createFileRoute("/specificVenueRoute")({
 
 function SpecificVenueRoute() {
   const search = Route.useSearch();
+  const queryClient = useQueryClient();
   const venueId = search.id?.trim();
   const [session, setSession] = React.useState(() => getStoredSession());
   const [activeImage, setActiveImage] = React.useState("");
