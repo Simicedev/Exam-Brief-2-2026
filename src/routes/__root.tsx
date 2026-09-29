@@ -10,7 +10,7 @@ export const Route = createRootRoute({
 });
 function RootComponent() {
 	const pathname = useRouterState({ select: (state) => state.location.pathname })
-	const hideVenueSearch = pathname === '/loginRoute' || pathname === '/registerRoute' || pathname === '/profileRoute'
+  const hideVenueSearch = pathname === '/loginRoute' || pathname === '/registerRoute' || pathname === '/profileRoute' || pathname === '/createVenueRoute' || pathname === '/editVenueRoute'
 
   return (
     <div className="flex min-h-screen flex-col">

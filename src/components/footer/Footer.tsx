@@ -66,7 +66,7 @@ export default function Footer() {
 			</div>
 
 			<div className="border-t border-white/15 px-4 py-4 text-center text-xs text-white/70 sm:px-6 lg:px-8">
-				<p>© {year} Holidaze. Built for the Exam Brief 2 project.</p>
+				<p>© {year} VayCay. Built for the Exam Brief 2 project.</p>
 			</div>
 		</footer>
 	)

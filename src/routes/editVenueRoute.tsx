@@ -213,9 +213,9 @@ function EditVenueRoute() {
 
   if (isLoading) {
     return (
-      <section className="flex min-h-[calc(100svh-16rem)] items-center justify-center px-4 py-12">
+      <section className="flex min-h-[calc(100svh-16rem)] items-center justify-center bg-slate-50 px-4 py-12">
         <div className="text-center">
-          <LoaderCircle className="w-8 h-8 animate-spin mx-auto mb-4" />
+          <LoaderCircle className="mx-auto mb-4 size-8 animate-spin text-[#232c3d]" />
           <p className="text-muted-foreground">Loading venue...</p>
         </div>
       </section>
@@ -223,19 +223,25 @@ function EditVenueRoute() {
   }
 
   return (
-    <section className="flex min-h-[calc(100svh-16rem)] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-      <div className="w-full max-w-4xl rounded-[2rem] border border-border bg-background p-6 shadow-xl shadow-black/5 sm:p-8">
-        <div className="mb-8 space-y-3">
-          <h1 className="text-3xl font-semibold tracking-tight text-black">Edit Venue</h1>
-          <p className="text-base text-black">
-            Update your venue information
+    <section className="min-h-[calc(100svh-16rem)] bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-6xl">
+        <div className="mb-8 border-b border-slate-200 pb-7 text-center">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">
+            Hosting / Edit listing
+          </p>
+          <h1 className="text-3xl font-semibold tracking-tight text-[#232c3d] sm:text-4xl">Edit your venue</h1>
+          <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-slate-600 sm:text-base">
+            Update the details travellers see before they book.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="grid gap-5 lg:grid-cols-2">
           {/* Basic Information */}
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-black">Basic Information</h2>
+          <div className="space-y-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-7 lg:col-span-2">
+            <div>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-amber-700">01 / The stay</p>
+              <h2 className="text-lg font-semibold text-[#232c3d]">Basic information</h2>
+            </div>
             
             <div>
               <label htmlFor="name" className="block text-sm font-medium mb-2 text-black">
@@ -247,7 +253,7 @@ function EditVenueRoute() {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className={cn(
-                  'w-full px-4 py-2 rounded-lg border bg-background transition-colors text-black',
+                  'w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus-visible:border-[#232c3d] focus-visible:ring-4 focus-visible:ring-[#232c3d]/10',
                   formErrors.name ? 'border-destructive' : 'border-border'
                 )}
               />
@@ -266,7 +272,7 @@ function EditVenueRoute() {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
                 className={cn(
-                  'w-full px-4 py-2 rounded-lg border bg-background transition-colors text-black',
+                  'w-full min-h-32 rounded-md border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus-visible:border-[#232c3d] focus-visible:ring-4 focus-visible:ring-[#232c3d]/10',
                   formErrors.description ? 'border-destructive' : 'border-border'
                 )}
               />
@@ -277,8 +283,11 @@ function EditVenueRoute() {
           </div>
 
           {/* Pricing & Capacity */}
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-black">Pricing & Capacity</h2>
+          <div className="space-y-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+            <div>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-amber-700">02 / The details</p>
+              <h2 className="text-lg font-semibold text-[#232c3d]">Pricing and capacity</h2>
+            </div>
             
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
@@ -293,7 +302,7 @@ function EditVenueRoute() {
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
                   className={cn(
-                    'w-full px-4 py-2 rounded-lg border bg-background transition-colors text-black',
+                    'w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus-visible:border-[#232c3d] focus-visible:ring-4 focus-visible:ring-[#232c3d]/10',
                     formErrors.price ? 'border-destructive' : 'border-border'
                   )}
                 />
@@ -314,7 +323,7 @@ function EditVenueRoute() {
                   value={formData.maxGuests}
                   onChange={(e) => setFormData({ ...formData, maxGuests: Number(e.target.value) })}
                   className={cn(
-                    'w-full px-4 py-2 rounded-lg border bg-background transition-colors text-black',
+                    'w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus-visible:border-[#232c3d] focus-visible:ring-4 focus-visible:ring-[#232c3d]/10',
                     formErrors.maxGuests ? 'border-destructive' : 'border-border'
                   )}
                 />
@@ -326,7 +335,7 @@ function EditVenueRoute() {
 
             <div >
               <p className="block text-sm font-medium mb-2 text-black">Rating *</p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-start gap-1 rounded-md bg-amber-50 px-3 py-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     key={star}
@@ -334,7 +343,7 @@ function EditVenueRoute() {
                     onClick={() => setFormData({ ...formData, rating: star })}
                     aria-label={`Set rating to ${star} star${star === 1 ? '' : 's'}`}
                     className={cn(
-                      'rounded-md px-2 py-1 text-lg leading-none transition',
+                      'grid size-10 place-items-center rounded-md text-xl leading-none transition hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700',
                       formData.rating >= star ? 'text-amber-500' : 'text-slate-300 hover:text-amber-300'
                     )}
                   >
@@ -350,8 +359,11 @@ function EditVenueRoute() {
           </div>
 
           {/* Location */}
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-black">Location</h2>
+          <div className="space-y-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+            <div>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-amber-700">03 / The place</p>
+              <h2 className="text-lg font-semibold text-[#232c3d]">Location</h2>
+            </div>
             
             <div>
               <label htmlFor="address" className="block text-sm font-medium mb-2 text-black">
@@ -363,7 +375,7 @@ function EditVenueRoute() {
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 className={cn(
-                  'w-full px-4 py-2 rounded-lg border bg-background transition-colors text-black',
+                  'w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus-visible:border-[#232c3d] focus-visible:ring-4 focus-visible:ring-[#232c3d]/10',
                   formErrors.address ? 'border-destructive' : 'border-border'
                 )}
               />
@@ -383,7 +395,7 @@ function EditVenueRoute() {
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                   className={cn(
-                    'w-full px-4 py-2 rounded-lg border bg-background transition-colors text-black',
+                    'w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus-visible:border-[#232c3d] focus-visible:ring-4 focus-visible:ring-[#232c3d]/10',
                     formErrors.city ? 'border-destructive' : 'border-border'
                   )}
                 />
@@ -402,7 +414,7 @@ function EditVenueRoute() {
                   value={formData.zip}
                   onChange={(e) => setFormData({ ...formData, zip: e.target.value })}
                   className={cn(
-                    'w-full px-4 py-2 rounded-lg border bg-background transition-colors text-black',
+                    'w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus-visible:border-[#232c3d] focus-visible:ring-4 focus-visible:ring-[#232c3d]/10',
                     formErrors.zip ? 'border-destructive' : 'border-border'
                   )}
                 />
@@ -423,7 +435,7 @@ function EditVenueRoute() {
                   value={formData.country}
                   onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                   className={cn(
-                    'w-full px-4 py-2 rounded-lg border bg-background transition-colors text-black',
+                    'w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus-visible:border-[#232c3d] focus-visible:ring-4 focus-visible:ring-[#232c3d]/10',
                     formErrors.country ? 'border-destructive' : 'border-border'
                   )}
                 />
@@ -442,7 +454,7 @@ function EditVenueRoute() {
                   value={formData.continent}
                   onChange={(e) => setFormData({ ...formData, continent: e.target.value })}
                   className={cn(
-                    'w-full px-4 py-2 rounded-lg border bg-background transition-colors text-black',
+                    'w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus-visible:border-[#232c3d] focus-visible:ring-4 focus-visible:ring-[#232c3d]/10',
                     formErrors.continent ? 'border-destructive' : 'border-border'
                   )}
                 />
@@ -465,7 +477,7 @@ function EditVenueRoute() {
                   max="90"
                   value={formData.lat || ''}
                   onChange={(e) => setFormData({ ...formData, lat: e.target.value ? Number(e.target.value) : undefined })}
-                  className="w-full px-4 py-2 rounded-lg border border-border bg-background transition-colors text-black"
+                  className="w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus-visible:border-[#232c3d] focus-visible:ring-4 focus-visible:ring-[#232c3d]/10"
                 />
               </div>
 
@@ -481,19 +493,22 @@ function EditVenueRoute() {
                   max="180"
                   value={formData.lng || ''}
                   onChange={(e) => setFormData({ ...formData, lng: e.target.value ? Number(e.target.value) : undefined })}
-                  className="w-full px-4 py-2 rounded-lg border border-border bg-background transition-colors text-black"
+                  className="w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus-visible:border-[#232c3d] focus-visible:ring-4 focus-visible:ring-[#232c3d]/10"
                 />
               </div>
             </div>
           </div>
 
           {/* Amenities */}
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-black">Amenities</h2>
+          <div className="space-y-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+            <div>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-amber-700">04 / The comforts</p>
+              <h2 className="text-lg font-semibold text-[#232c3d]">Amenities</h2>
+            </div>
             
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {(['wifi', 'parking', 'breakfast', 'pets'] as const).map((amenity) => (
-                <label key={amenity} className="flex items-center space-x-3 cursor-pointer">
+                <label key={amenity} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-md border border-slate-200 px-3 transition hover:border-slate-400 has-checked:border-[#232c3d] has-checked:bg-slate-50">
                   <input
                     type="checkbox"
                     checked={formData[amenity]}
@@ -507,11 +522,15 @@ function EditVenueRoute() {
           </div>
 
           {/* Images */}
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-black">Venue Images</h2>
+          <div className="space-y-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+            <div>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-amber-700">05 / First impressions</p>
+              <h2 className="text-lg font-semibold text-[#232c3d]">Venue images</h2>
+            </div>
             
             <div className="space-y-3">
-              <div>
+              <div className="space-y-3 sm:flex sm:items-end sm:gap-3 sm:space-y-0">
+                <div className="min-w-0 flex-1">
                 <label htmlFor="imageUrl" className="block text-sm font-medium mb-2 text-black">
                   Image URL
                 </label>
@@ -521,37 +540,36 @@ function EditVenueRoute() {
                   placeholder="https://example.com/image.jpg"
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-border bg-background transition-colors text-black"
+                  className="w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus-visible:border-[#232c3d] focus-visible:ring-4 focus-visible:ring-[#232c3d]/10"
                 />
+                </div>
+                <Button
+                  type="button"
+                  onClick={handleAddImage}
+                  variant="outline"
+                  className="min-h-11 w-full rounded-md border-slate-300 px-4 sm:w-auto"
+                >
+                  <Plus className="mr-2 size-4" />
+                  Add image
+                </Button>
               </div>
-
-              <Button
-                type="button"
-                onClick={handleAddImage}
-                variant="outline"
-                className="w-full"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Image
-              </Button>
             </div>
 
             {formData.mediaUrls && formData.mediaUrls.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="text-sm font-medium text-black">Venue Images ({formData.mediaUrls.length})</h3>
-                <div className="space-y-2">
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium text-slate-700">Added images ({formData.mediaUrls.length})</h3>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {formData.mediaUrls.map((media, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between rounded-lg border border-border bg-muted p-3"
+                      className="group/image relative aspect-4/3 overflow-hidden rounded-md border border-slate-200 bg-slate-100"
                     >
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-foreground">{media.url}</p>
-                      </div>
+                      <img src={media.url} alt="" className="h-full w-full object-cover" />
                       <button
                         type="button"
                         onClick={() => handleRemoveImage(index)}
-                        className="ml-2 inline-flex items-center justify-center rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                        aria-label={`Remove image ${index + 1}`}
+                        className="absolute right-2 top-2 inline-flex size-8 items-center justify-center rounded-full bg-white/95 text-slate-700 shadow-sm transition hover:bg-red-50 hover:text-red-700"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -563,19 +581,19 @@ function EditVenueRoute() {
           </div>
 
           {/* Submit */}
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end lg:col-span-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => navigate({ to: `/specificVenueRoute/${id}` })}
-              className="flex-1"
+              className="min-h-11 rounded-full px-6 sm:flex-none"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1"
+              className="min-h-11 rounded-full bg-[#232c3d] px-6 text-white shadow-sm transition hover:bg-[#35445c] sm:min-w-44"
             >
               {isSubmitting && <LoaderCircle className="w-4 h-4 mr-2 animate-spin" />}
               {isSubmitting ? 'Updating...' : 'Update Venue'}

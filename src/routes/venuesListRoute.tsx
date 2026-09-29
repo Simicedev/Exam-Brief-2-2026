@@ -3,6 +3,7 @@ import * as React from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { ArrowRight, MapPin, Users } from "lucide-react";
 import { ApiError, apiClient } from "../api/apiClient";
 import type { Venue } from "../api/interfaceHolidazeApi";
 import { Link } from "@tanstack/react-router";
@@ -326,40 +327,72 @@ function RouteComponent() {
           {visibleVenues.map((venue) => {
             const clampedRating = Math.max(0, Math.min(5, venue.rating ?? 0));
             const roundedRating = Math.round(clampedRating);
+            const featuredAmenities = [
+              venue.meta?.wifi && "Wi-Fi",
+              venue.meta?.parking && "Parking",
+              venue.meta?.breakfast && "Breakfast",
+              venue.meta?.pets && "Pets welcome",
+            ].filter((amenity): amenity is string => Boolean(amenity));
+            const locationLabel = [venue.location.city, venue.location.country].filter(Boolean).join(", ");
             
             return (
-              <Card key={venue.id} className="overflow-hidden">
-                <img
-                  src={venue.media?.[0]?.url || ""}
-                  alt={venue.media?.[0]?.alt || venue.name}
-                  className="h-48 w-full object-cover"
-                />
-                <CardHeader>
-                  <CardTitle className="text-black">{venue.name}</CardTitle>
-                  <CardDescription className="text-slate-600">
-                    ${venue.price} per night
-                  </CardDescription>
-                  <CardDescription className="text-sm text-slate-600">
-                    Max - {venue.maxGuests} Guests
+              <Card key={venue.id} className="group/card overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
+                <div className="h-52 overflow-hidden bg-slate-100">
+                  <img
+                    src={venue.media?.[0]?.url || ""}
+                    alt={venue.media?.[0]?.alt || venue.name}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-105"
+                  />
+                </div>
+                <CardHeader className="gap-2 px-5 pb-2 pt-5">
+                  <CardTitle className="line-clamp-1 text-lg font-semibold text-[#232c3d]">{venue.name}</CardTitle>
+                  <CardDescription className="flex items-baseline gap-1 text-[#232c3d]">
+                    <span className="text-lg font-bold">${venue.price}</span>
+                    <span className="text-xs font-medium text-slate-500">/ night</span>
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-sm text-slate-600">
-                    {venue.location.city}, {venue.location.country}
-                  </CardDescription>
-                  <div
-                    className="text-sm text-amber-500"
-                    aria-label={`${clampedRating.toFixed(1)} out of 5 stars`}
-                    title={`${clampedRating.toFixed(1)} / 5`}
-                  >
-                    {"★".repeat(roundedRating)}
-                    {"☆".repeat(5 - roundedRating)}
-                    <span className="ml-2 text-slate-600">{clampedRating.toFixed(1)}</span>
+                <CardContent className="space-y-3 px-5 pb-5">
+                  {locationLabel ? (
+                    <p className="flex items-center gap-1.5 text-sm font-medium text-slate-600">
+                      <MapPin aria-hidden="true" className="size-4 shrink-0 text-amber-700" />
+                      <span className="line-clamp-1">{locationLabel}</span>
+                    </p>
+                  ) : null}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+                      <Users aria-hidden="true" className="size-3.5 text-[#232c3d]" />
+                      Up to {venue.maxGuests} guests
+                    </span>
+                    <span
+                      className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800"
+                      aria-label={`${clampedRating.toFixed(1)} out of 5 stars`}
+                      title={`${clampedRating.toFixed(1)} / 5`}
+                    >
+                      <span aria-hidden="true" className="text-amber-600">
+                        {"★".repeat(roundedRating)}{"☆".repeat(5 - roundedRating)}
+                      </span>
+                      {clampedRating.toFixed(1)}
+                    </span>
                   </div>
+                  {featuredAmenities.length > 0 ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {featuredAmenities.slice(0, 3).map((amenity) => (
+                        <span key={amenity} className="rounded-sm border border-slate-200 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+                          {amenity}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
                 </CardContent>
-                <CardFooter className="flex justify-center">
+                <CardFooter className="mt-auto border-t border-slate-100 bg-slate-50/70 px-5 py-4">
                   <Link to="/specificVenueRoute" search={{ id: venue.id }}>
-                    <Button size="sm">View Details</Button>
+                    <Button
+                      size="sm"
+                      className="group/button h-10 w-full justify-between gap-2 rounded-full bg-[#232c3d] px-5 text-white shadow-sm transition-all hover:cursor-pointer hover:bg-[#35445c] hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#e7b85c]"
+                    >
+                      View Details
+                      <ArrowRight aria-hidden="true" className="size-4 transition-transform group-hover/button:translate-x-1" />
+                    </Button>
                   </Link>
                 </CardFooter>
               </Card>
