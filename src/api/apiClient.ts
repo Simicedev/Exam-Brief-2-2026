@@ -16,8 +16,8 @@ import type {
 	VenueResponse,
 } from "./interfaceHolidazeApi";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const API_KEY = import.meta.env.VITE_API_KEY;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://v2.api.noroff.dev";
+const API_KEY = import.meta.env.VITE_API_KEY || "";
 
 type QueryValue = string | number | boolean | null | undefined;
 

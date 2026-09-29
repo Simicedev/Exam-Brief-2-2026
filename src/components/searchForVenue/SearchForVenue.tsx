@@ -1,6 +1,8 @@
 import * as React from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useNavigate, useRouterState } from "@tanstack/react-router"
+import { DayPicker, type Matcher } from "react-day-picker"
+import "react-day-picker/style.css"
 import { CalendarDays, Search, Users } from "lucide-react"
 
 import { ApiError, apiClient } from "../../api/apiClient"
@@ -10,6 +12,34 @@ const DEFAULT_LIMIT = 12
 const SUGGESTION_LIMIT = 5
 const SUGGESTION_SOURCE_LIMIT = 100
 const SEARCH_QUERY_PARAM = "query"
+
+function toStartOfDay(value: Date | string) {
+	const date = new Date(value)
+	date.setHours(0, 0, 0, 0)
+	return date
+}
+
+function toInputDate(date: Date) {
+	return toStartOfDay(date).toISOString().split("T")[0]
+}
+
+function toCalendarLabel(value: string) {
+	if (!value) {
+		return "Select a date"
+	}
+
+	const date = new Date(value)
+	if (Number.isNaN(date.getTime())) {
+		return value
+	}
+
+	return date.toLocaleDateString(undefined, {
+		weekday: "short",
+		month: "short",
+		day: "numeric",
+		year: "numeric",
+	})
+}
 
 function toPositiveNumber(value: string | null, fallback: number) {
 	const parsedValue = Number(value)
@@ -54,10 +84,10 @@ async function fetchSuggestionVenues() {
 
 export default function SearchForVenue() {
 	const navigate = useNavigate()
-	const checkInDateInputRef = React.useRef<HTMLInputElement | null>(null)
-	const returnDateInputRef = React.useRef<HTMLInputElement | null>(null)
 	const searchInputRef = React.useRef<HTMLInputElement | null>(null)
 	const suggestionBoxRef = React.useRef<HTMLDivElement | null>(null)
+	const checkInCalendarRef = React.useRef<HTMLDivElement | null>(null)
+	const returnCalendarRef = React.useRef<HTMLDivElement | null>(null)
 	const { pathname, searchStr } = useRouterState({
 		select: (state) => ({
 			pathname: state.location.pathname,
@@ -77,6 +107,7 @@ export default function SearchForVenue() {
 	const [draftGuests, setDraftGuests] = React.useState(guestCount)
 	const [showSuggestions, setShowSuggestions] = React.useState(false)
 	const [isSearchOpen, setIsSearchOpen] = React.useState(false)
+	const [openCalendar, setOpenCalendar] = React.useState<"checkIn" | "checkOut" | null>(null)
 
 	React.useEffect(() => {
 		setDraftQuery(query)
@@ -112,6 +143,29 @@ export default function SearchForVenue() {
 			document.removeEventListener("mousedown", handlePointerDown)
 		}
 	}, [showSuggestions])
+
+	React.useEffect(() => {
+		if (!openCalendar) {
+			return
+		}
+
+		const handlePointerDown = (event: MouseEvent) => {
+			const target = event.target as Node
+			const activeRef = openCalendar === "checkIn" ? checkInCalendarRef.current : returnCalendarRef.current
+
+			if (activeRef?.contains(target)) {
+				return
+			}
+
+			setOpenCalendar(null)
+		}
+
+		document.addEventListener("mousedown", handlePointerDown)
+
+		return () => {
+			document.removeEventListener("mousedown", handlePointerDown)
+		}
+	}, [openCalendar])
 
 	const suggestionSourceQuery = useQuery({
 		queryKey: ["venues", "toolbar-suggestions-source"],
@@ -188,14 +242,36 @@ export default function SearchForVenue() {
 		})
 	}
 
-	const openDatePicker = (input: HTMLInputElement | null) => {
-		if (typeof input?.showPicker === "function") {
-			input.showPicker()
+	const minimumDate = toStartOfDay(new Date())
+	const selectedCheckIn = draftDate ? toStartOfDay(draftDate) : undefined
+	const selectedReturnDate = draftReturnDate ? toStartOfDay(draftReturnDate) : undefined
+	const pastDayMatcher: Matcher = { before: minimumDate }
+	const checkInDisabledMatchers: Matcher[] = [pastDayMatcher]
+	const checkOutDisabledMatchers: Matcher[] = [
+		pastDayMatcher,
+		(date: Date) => (selectedCheckIn ? toStartOfDay(date) <= selectedCheckIn : false),
+	]
+
+	const handleCheckInSelect = (date: Date | undefined) => {
+		if (!date) {
 			return
 		}
 
-		input?.focus()
-		input?.click()
+		const nextCheckIn = toInputDate(date)
+		setDraftDate(nextCheckIn)
+		if (draftReturnDate && toStartOfDay(draftReturnDate) <= toStartOfDay(date)) {
+			setDraftReturnDate("")
+		}
+		setOpenCalendar("checkOut")
+	}
+
+	const handleReturnDateSelect = (date: Date | undefined) => {
+		if (!date) {
+			return
+		}
+
+		setDraftReturnDate(toInputDate(date))
+		setOpenCalendar(null)
 	}
 
 	const suggestions = React.useMemo(() => {
@@ -328,51 +404,62 @@ export default function SearchForVenue() {
 							) : null}
 						</div>
 
-						<div className="flex min-w-0 items-center gap-2 rounded-2xl border border-border bg-white px-3 py-2 shadow-sm">
+						<div ref={checkInCalendarRef} className="relative min-w-0">
 							<button
 								type="button"
-								onClick={() => openDatePicker(checkInDateInputRef.current)}
-								className="inline-flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
-								aria-label="Open date picker"
+								onClick={() => setOpenCalendar((current) => current === "checkIn" ? null : "checkIn")}
+								className="flex w-full min-w-0 items-center gap-2 rounded-2xl border border-border bg-white px-3 py-2 text-left shadow-sm transition hover:bg-muted"
+								aria-label="Open check-in calendar"
 							>
-								<CalendarDays className="size-4" />
+								<CalendarDays className="size-4 shrink-0 text-muted-foreground" />
+								<div className="min-w-0 flex-1">
+									<span className="block text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+										Check-in date
+									</span>
+									<span className="block truncate text-sm text-foreground">{toCalendarLabel(draftDate)}</span>
+								</div>
 							</button>
-							<div className="min-w-0 flex-1 text-left">
-								<span className="block text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-									Check-in date
-								</span>
-								<input
-									ref={checkInDateInputRef}
-									type="date"
-									value={draftDate}
-									onChange={(event) => setDraftDate(event.target.value)}
-									className="w-full bg-transparent text-sm text-foreground outline-none"
-								/>
-							</div>
+							<input type="hidden" name="date" value={draftDate} />
+
+							{openCalendar === "checkIn" ? (
+								<div className="absolute left-0 top-[calc(100%+0.5rem)] z-50 rounded-2xl border border-border bg-white p-3 shadow-xl">
+									<SearchToolbarCalendar
+										selected={selectedCheckIn}
+										onSelect={handleCheckInSelect}
+										disabled={checkInDisabledMatchers}
+										showBookedLegend={false}
+									/>
+								</div>
+							) : null}
 						</div>
 
-						<div className="flex min-w-0 items-center gap-2 rounded-2xl border border-border bg-white px-3 py-2 shadow-sm">
+						<div ref={returnCalendarRef} className="relative min-w-0">
 							<button
 								type="button"
-								onClick={() => openDatePicker(returnDateInputRef.current)}
-								className="inline-flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+								onClick={() => setOpenCalendar((current) => current === "checkOut" ? null : "checkOut")}
+								className="flex w-full min-w-0 items-center gap-2 rounded-2xl border border-border bg-white px-3 py-2 text-left shadow-sm transition hover:bg-muted"
 								aria-label="Open return date picker"
 							>
-								<CalendarDays className="size-4" />
+								<CalendarDays className="size-4 shrink-0 text-muted-foreground" />
+								<div className="min-w-0 flex-1">
+									<span className="block text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+										Return date
+									</span>
+									<span className="block truncate text-sm text-foreground">{toCalendarLabel(draftReturnDate)}</span>
+								</div>
 							</button>
-							<div className="min-w-0 flex-1 text-left">
-								<span className="block text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-									Return date
-								</span>
-								<input
-									ref={returnDateInputRef}
-									type="date"
-									value={draftReturnDate}
-									min={draftDate || undefined}
-									onChange={(event) => setDraftReturnDate(event.target.value)}
-									className="w-full bg-transparent text-sm text-foreground outline-none"
-								/>
-							</div>
+							<input type="hidden" name="returnDate" value={draftReturnDate} />
+
+							{openCalendar === "checkOut" ? (
+								<div className="absolute left-0 top-[calc(100%+0.5rem)] z-50 rounded-2xl border border-border bg-white p-3 shadow-xl">
+									<SearchToolbarCalendar
+										selected={selectedReturnDate}
+										onSelect={handleReturnDateSelect}
+										disabled={checkOutDisabledMatchers}
+										showBookedLegend={false}
+									/>
+								</div>
+							) : null}
 						</div>
 
 						<label className="flex min-w-0 items-center gap-2 rounded-2xl border border-border bg-white px-3 py-2 shadow-sm">
@@ -403,5 +490,59 @@ export default function SearchForVenue() {
 				</div>
 			</div>
 		</section>
+	)
+}
+
+function SearchToolbarCalendar({
+	selected,
+	onSelect,
+	disabled,
+	showBookedLegend,
+}: {
+	selected?: Date;
+	onSelect: (date: Date | undefined) => void;
+	disabled: Matcher[];
+	showBookedLegend: boolean;
+}) {
+	return (
+		<div className="space-y-3">
+			<DayPicker
+				mode="single"
+				navLayout="after"
+				selected={selected}
+				onSelect={onSelect}
+				disabled={disabled}
+				modifiers={{ past: disabled[0] }}
+				modifiersClassNames={{
+					past: "!bg-slate-100 !text-slate-400 line-through decoration-2 decoration-slate-400",
+				}}
+				classNames={{
+					root: "rdp-root",
+					months: "flex",
+					month: "flex flex-col gap-3",
+					month_grid: "order-2",
+					month_caption: "flex items-center justify-between px-1",
+					caption_label: "text-sm font-semibold text-slate-900",
+					nav: "order-3 flex items-center justify-center gap-2 pt-1",
+					button_previous: "grid size-8 place-items-center rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100",
+					button_next: "grid size-8 place-items-center rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100",
+					weekdays: "grid grid-cols-7",
+					weekday: "text-center text-xs font-medium uppercase tracking-wide text-slate-400",
+					week: "mt-1 grid grid-cols-7",
+					day: "grid place-items-center p-0",
+					day_button: "grid size-10 place-items-center rounded-xl text-sm text-slate-800 transition hover:bg-slate-100",
+					selected: "!bg-black !text-white hover:!bg-black",
+					today: "font-semibold text-black ring-1 ring-slate-200",
+					disabled: "opacity-100",
+					outside: "text-slate-300",
+					hidden: "invisible",
+				}}
+			/>
+
+			<div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+				<span className="inline-block rounded bg-slate-100 px-2 py-1 text-slate-500 line-through decoration-2 decoration-slate-400">Past</span>
+				<span>{showBookedLegend ? "Unavailable dates are disabled." : "Past dates are disabled."}</span>
+			</div>
+		</div>
 	)
 }

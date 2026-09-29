@@ -2,6 +2,8 @@
 
 Holidaze front-end project built with a modern React + TypeScript stack focused on routing, server-state handling, component consistency, and testability.
 
+Website - https://vaycay.netlify.app/homeRoute
+
 ## Tech Stack
 
 - React
@@ -12,6 +14,7 @@ Holidaze front-end project built with a modern React + TypeScript stack focused 
 - Zod
 - Vitest
 - Tabler Icons
+- DayPicker
 
 ## Why This Stack
 
@@ -39,12 +42,15 @@ Vitest is a fast testing framework that works naturally in Vite projects. It is 
 ### Tabler Icons
 Tabler Icons gives a broad, clean icon set that integrates nicely with React components and keeps iconography consistent across the UI.
 
+### DayPicker
+DayPicker gives me the touch I need for a venue site, it is used to remove already booked calender days, find available calender days, and an easy to navigate calender all in all.
 ## Getting Started
 
 ### 1. Install dependencies
 
 ```bash
-npm install
+npm install @base-ui/react @fontsource-variable/geist @headlessui/react @tabler/icons @tailwindcss/vite @tanstack/react-query @tanstack/react-query-devtools @tanstack/react-router class-variance-authority clsx lucide-react next-themes react react-day-picker react-dom shadcn sonner tailwind-merge tailwindcss tw-animate-css zod
+npm install -D @eslint/js @tanstack/eslint-plugin-query @tanstack/router-vite-plugin @types/node @types/react @types/react-dom @vitejs/plugin-react eslint eslint-plugin-react-hooks eslint-plugin-react-refresh globals typescript typescript-eslint vite vitest
 ```
 
 ### 2. Configure environment variables
@@ -87,4 +93,4 @@ npx vitest --watch
 
 https://github.com/Simicedev
 
-
+@Simicedev

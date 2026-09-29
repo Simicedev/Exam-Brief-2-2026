@@ -1,6 +1,6 @@
 export type Media = {
     url: string;
-    alt: string;
+    alt?: string;
 };
 
 export type PaginationMeta = {
@@ -24,15 +24,15 @@ export type Profile = {
     name: string;
     email: string;
     bio: string;
-    avatar: Media;
-    banner: Media;
+    avatar?: Media;
+    banner?: Media;
 };
 
 export type Venue = {
     id: string;
     name: string;
     description: string;
-    media: Media[];
+    media?: Media[];
     price: number;
     maxGuests: number;
     rating: number;
